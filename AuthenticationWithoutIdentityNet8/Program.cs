@@ -1,3 +1,7 @@
+using AuthenticationWithoutIdentityNet8.Models.Context;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+
 namespace AuthenticationWithoutIdentityNet8
 {
     public class Program
@@ -5,6 +9,31 @@ namespace AuthenticationWithoutIdentityNet8
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+
+            builder.Services.AddDbContext<DataBaseContext>(c => {
+                c.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer"));
+            });
+
+
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(opt => {
+                    opt.LoginPath = "/Account/Login";
+                    opt.Cookie.Name = "";
+                    opt.AccessDeniedPath = "/Account/AccessDenied"; 
+                    opt.SlidingExpiration=true;
+
+               });
+
+            builder.Services.AddAuthorization();
+
+
+
+
+
+
+
+
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
@@ -23,6 +52,9 @@ namespace AuthenticationWithoutIdentityNet8
             app.UseStaticFiles();
 
             app.UseRouting();
+
+
+            app.UseAuthentication();    
 
             app.UseAuthorization();
 
